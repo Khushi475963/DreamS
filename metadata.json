@@ -1,0 +1,7 @@
+{
+  "name": "Juneja Hospital AI Care",
+  "description": "Juneja Hospital AI Care System - Patient Triage, Digital Twin, and Doctor Portal.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
