@@ -6,13 +6,14 @@ import TriageReport from './TriageReport';
 import DisclaimerModal from './DisclaimerModal';
 import { sendMessageToTriage, resetSession } from '../services/geminiService';
 import { TriageResponse, AppState, IntakeData, AIResponse, MCQStepResponse } from '../types';
-import { RefreshCw, ClipboardCheck } from 'lucide-react';
+import { RefreshCw, ClipboardCheck, UserCog } from 'lucide-react';
 
 interface Props {
   onSaveRecord: (intake: IntakeData, triage: TriageResponse) => void;
+  onNavigateToDigitalTwin: () => void;
 }
 
-const PatientTriageView: React.FC<Props> = ({ onSaveRecord }) => {
+const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalTwin }) => {
   const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(false);
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   
@@ -202,10 +203,17 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord }) => {
 
       {(appState === AppState.RESULTS && finalReport?.clarifying_questions_needed === 'NO') && (
         <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 flex justify-center">
-          <div className="max-w-4xl w-full">
+          <div className="max-w-4xl w-full flex flex-col md:flex-row gap-3">
+               <button 
+                 onClick={onNavigateToDigitalTwin}
+                 className="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 p-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
+               >
+                 <UserCog className="w-5 h-5" />
+                 View Digital Twin
+               </button>
                <button 
                  onClick={handleReset}
-                 className="w-full bg-slate-800 hover:bg-slate-900 text-white p-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors shadow-lg"
+                 className="flex-1 bg-slate-800 hover:bg-slate-900 text-white p-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors shadow-lg"
                >
                  <RefreshCw className="w-5 h-5" />
                  Start New Triage
