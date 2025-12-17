@@ -1,24 +1,33 @@
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AlertTriangle } from 'lucide-react';
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+interface Props {
+  children?: ReactNode;
+}
 
-  static getDerivedStateFromError(error: Error) {
+interface State {
+  hasError: boolean;
+  error: Error | null;
+}
+
+// Fixed ErrorBoundary to explicitly extend Component
+class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    error: null
+  };
+
+  public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  render() {
+  public render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">

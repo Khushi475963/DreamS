@@ -59,7 +59,7 @@ const DoctorsDirectory: React.FC = () => {
             <Stethoscope className="w-6 h-6 text-indigo-600" />
             Doctors & Specialists
           </h2>
-          <p className="text-slate-500">Juneja Hospital Directory & OPD Schedule</p>
+          <p className="text-slate-500">J.C. Juneja Hospital Directory & OPD Schedule</p>
         </div>
         <div className="relative w-full md:w-64">
            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />

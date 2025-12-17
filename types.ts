@@ -28,9 +28,11 @@ export interface TriageResponse {
   self_care_advice: string;
   ayurvedic_suggestions: string;
   internal_chatbot_trigger: "YES" | "NO";
+  estimated_consultation_time: string;
 }
 
 export interface IntakeData {
+  email: string;
   fullName: string;
   age: string;
   sex: string;
@@ -73,7 +75,9 @@ export interface PatientRecord {
 
 export enum AppState {
   IDLE = 'IDLE',
+  PATIENT_ID = 'PATIENT_ID',
   INTAKE = 'INTAKE',
+  QUICK_INTAKE = 'QUICK_INTAKE', // Chatbot mode for returning users
   ANALYZING_INTAKE = 'ANALYZING_INTAKE',
   MCQ_ENTRY = 'MCQ_ENTRY',
   ANALYZING_MCQ = 'ANALYZING_MCQ',

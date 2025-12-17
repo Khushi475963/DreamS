@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
 
@@ -21,7 +22,7 @@ const DisclaimerModal: React.FC<Props> = ({ onAccept }) => {
         
         <div className="p-6 space-y-4 text-slate-600 text-sm leading-relaxed">
           <p>
-            <strong>Aarogya AI is a Clinical Triage Assistant, not a doctor.</strong>
+            <strong>Eli is a Clinical Triage Assistant, not a doctor.</strong>
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li>This tool provides information based on medical guidelines but <strong>does not provide a definitive diagnosis</strong>.</li>

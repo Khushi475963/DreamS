@@ -1,33 +1,37 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import PatientIntakeForm from './PatientIntakeForm';
+import PatientIdentification from './PatientIdentification';
 import MCQQuestionnaire from './MCQQuestionnaire';
 import TriageReport from './TriageReport';
+import SymptomInput from './SymptomInput';
 import DisclaimerModal from './DisclaimerModal';
 import { sendMessageToTriage, resetSession } from '../services/geminiService';
-import { TriageResponse, AppState, IntakeData, AIResponse, MCQStepResponse } from '../types';
-import { RefreshCw, ClipboardCheck, UserCog } from 'lucide-react';
+import { TriageResponse, AppState, IntakeData, AIResponse, MCQStepResponse, PatientRecord } from '../types';
+import { RefreshCw, ClipboardCheck, UserCog, MessageSquare, Save } from 'lucide-react';
 
 interface Props {
   onSaveRecord: (intake: IntakeData, triage: TriageResponse) => void;
   onNavigateToDigitalTwin: () => void;
+  records: PatientRecord[];
+  onLogin: (email: string) => void;
 }
 
-const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalTwin }) => {
+const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalTwin, records, onLogin }) => {
   const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
+  const [currentEmail, setCurrentEmail] = useState('');
   
   const [intakeData, setIntakeData] = useState<IntakeData | null>(null);
   const [mcqData, setMcqData] = useState<MCQStepResponse | null>(null);
   const [finalReport, setFinalReport] = useState<TriageResponse | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     resetSession();
-    if (appState === AppState.IDLE) {
-       setAppState(AppState.INTAKE);
-    }
   }, [appState]);
 
   useEffect(() => {
@@ -36,9 +40,11 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     }
   }, [appState, mcqData, finalReport]);
 
-  const handleDisclaimerAccept = () => {
-    setHasAcceptedDisclaimer(true);
-    setAppState(AppState.INTAKE);
+  const triggerSave = (intake: IntakeData, report: TriageResponse) => {
+    if (!isSaved) {
+       onSaveRecord(intake, report);
+       setIsSaved(true);
+    }
   };
 
   const processAIResponse = (response: AIResponse) => {
@@ -55,7 +61,9 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
       
       // Auto-save record when final report is generated and no clarification needed
       if (report.clarifying_questions_needed === 'NO' && intakeData) {
-        onSaveRecord(intakeData, report);
+        // Ensure email is consistent from currentEmail state
+        const finalIntake = { ...intakeData, email: currentEmail.toLowerCase() };
+        triggerSave(finalIntake, report);
       }
       return;
     }
@@ -66,7 +74,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     }
   };
 
-  const handleIntakeSubmit = async (data: IntakeData) => {
+  const processIntake = async (data: IntakeData) => {
     setIntakeData(data);
     setAppState(AppState.ANALYZING_INTAKE);
     
@@ -101,6 +109,58 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     }
   };
 
+  const handleDisclaimerAccept = () => {
+    setHasAcceptedDisclaimer(true);
+    setShowDisclaimer(false);
+    setAppState(AppState.PATIENT_ID);
+  };
+
+  const handleEmailSubmit = (email: string) => {
+    const normalizedEmail = email.toLowerCase().trim();
+    setCurrentEmail(normalizedEmail);
+    onLogin(normalizedEmail);
+
+    // Check if user exists in records
+    // IMPORTANT: Strict lower case matching to fix history retrieval issues
+    const existingUserRecords = records.filter(r => 
+      r.intake.email.toLowerCase().trim() === normalizedEmail
+    );
+    
+    if (existingUserRecords.length > 0) {
+      // Returning user - Sort by latest
+      const latestRecord = existingUserRecords.sort((a, b) => b.timestamp - a.timestamp)[0];
+      // Pre-load data but clear current symptoms
+      setIntakeData({
+        ...latestRecord.intake,
+        email: normalizedEmail, // Ensure email is current
+        currentSymptoms: '' // Reset symptoms for new triage
+      });
+      setAppState(AppState.QUICK_INTAKE);
+    } else {
+      // New user
+      setAppState(AppState.INTAKE);
+    }
+  };
+
+  const handleIntakeSubmit = async (data: IntakeData) => {
+    // Force email consistency
+    const consistentData = { ...data, email: currentEmail };
+    processIntake(consistentData);
+  };
+
+  const handleQuickIntakeSubmit = async (symptoms: string) => {
+    if (!intakeData) return;
+    
+    // Merge new symptoms with existing profile and ensure email
+    const updatedIntake = {
+      ...intakeData,
+      email: currentEmail,
+      currentSymptoms: symptoms
+    };
+    
+    processIntake(updatedIntake);
+  };
+
   const handleMCQSubmit = async (answers: Record<string, string[]>) => {
     setAppState(AppState.ANALYZING_MCQ);
     
@@ -127,30 +187,80 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     }
   };
 
+  const handleManualSave = () => {
+    if (finalReport && intakeData) {
+        const finalIntake = { ...intakeData, email: currentEmail.toLowerCase() };
+        onSaveRecord(finalIntake, finalReport);
+        setIsSaved(true);
+        alert("Record saved to Doctor Portal successfully.");
+    }
+  };
+
   const handleReset = () => {
     resetSession();
     setIntakeData(null);
     setMcqData(null);
     setFinalReport(null);
-    setAppState(AppState.INTAKE);
+    setHasAcceptedDisclaimer(false);
+    setShowDisclaimer(true);
+    setCurrentEmail('');
+    setIsSaved(false);
+    setAppState(AppState.IDLE);
+    onLogin(''); // Clear login in parent
   };
 
-  if (!hasAcceptedDisclaimer) {
-    return <DisclaimerModal onAccept={handleDisclaimerAccept} />;
-  }
-
   return (
-    <div className="pb-32">
+    <div className="pb-32 relative">
+        {showDisclaimer && (
+          <DisclaimerModal onAccept={handleDisclaimerAccept} />
+        )}
+
         <div className="flex justify-center mb-8">
            <div className="flex items-center gap-2">
-              <span className={`h-2 w-2 rounded-full ${appState === AppState.INTAKE ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
+              <span className={`h-2 w-2 rounded-full ${[AppState.INTAKE, AppState.QUICK_INTAKE, AppState.PATIENT_ID].includes(appState) ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
               <span className={`h-2 w-2 rounded-full ${appState === AppState.MCQ_ENTRY ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
               <span className={`h-2 w-2 rounded-full ${appState === AppState.RESULTS ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
            </div>
         </div>
 
+        {appState === AppState.PATIENT_ID && (
+          <PatientIdentification onSubmit={handleEmailSubmit} />
+        )}
+
+        {appState === AppState.QUICK_INTAKE && intakeData && (
+           <div className="max-w-3xl mx-auto animate-fade-in-up">
+              <div className="bg-indigo-600 rounded-2xl p-8 text-white shadow-xl mb-8">
+                 <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-white/20 p-3 rounded-full">
+                       <MessageSquare className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">Welcome back, {intakeData.fullName.split(' ')[0]}</h2>
+                      <p className="text-indigo-100">Eli AI Assistant is ready to help.</p>
+                    </div>
+                 </div>
+                 <div className="bg-white/10 rounded-xl p-4 text-sm text-indigo-50 border border-white/10">
+                    <p>I have your medical history on file (Age: {intakeData.age}, Weight: {intakeData.weight}kg, Conditions: {intakeData.conditions || 'None'}). You don't need to enter it again.</p>
+                 </div>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
+                 <h3 className="text-lg font-bold text-slate-800 mb-4">What seems to be the problem today?</h3>
+                 <SymptomInput 
+                    onSubmit={handleQuickIntakeSubmit} 
+                    isLoading={false} 
+                    isFollowUp={false} 
+                 />
+              </div>
+           </div>
+        )}
+
         {appState === AppState.INTAKE && (
-          <PatientIntakeForm onSubmit={handleIntakeSubmit} isLoading={false} />
+          <PatientIntakeForm 
+            onSubmit={handleIntakeSubmit} 
+            isLoading={false} 
+            initialEmail={currentEmail}
+          />
         )}
         
         {appState === AppState.ANALYZING_INTAKE && (
@@ -177,7 +287,19 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
         )}
 
         {appState === AppState.RESULTS && finalReport && (
-          <div className="space-y-8">
+          <div className="space-y-8 relative">
+             {!isSaved && (
+                <div className="absolute top-0 right-0 z-10">
+                   <button 
+                     onClick={handleManualSave}
+                     className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2"
+                   >
+                     <Save className="w-4 h-4" />
+                     Save to Records
+                   </button>
+                </div>
+             )}
+
             {finalReport.clarifying_questions_needed === 'NO' ? (
                 <TriageReport data={finalReport} intakeData={intakeData || undefined} />
             ) : (
@@ -209,14 +331,14 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
                  className="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 p-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
                >
                  <UserCog className="w-5 h-5" />
-                 View Digital Twin
+                 View My Digital Twin
                </button>
                <button 
                  onClick={handleReset}
                  className="flex-1 bg-slate-800 hover:bg-slate-900 text-white p-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors shadow-lg"
                >
                  <RefreshCw className="w-5 h-5" />
-                 Start New Triage
+                 New Assessment
                </button>
           </div>
         </div>

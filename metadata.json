@@ -1,6 +1,6 @@
 {
-  "name": "Juneja Hospital AI Care",
-  "description": "Juneja Hospital AI Care System - Patient Triage, Digital Twin, and Doctor Portal.",
+  "name": "J.C. Juneja Hospital AI Care",
+  "description": "J.C. Juneja Hospital (Charitable Hospital of Mankind) AI Care System - Patient Triage, Digital Twin, and Doctor Portal.",
   "requestFramePermissions": [
     "microphone"
   ]

@@ -8,7 +8,7 @@ interface Props {
 
 const AccessQRModal: React.FC<Props> = ({ onClose }) => {
   const [url, setUrl] = useState('');
-  const uniqueCode = "JH-ENTRY-2025";
+  const uniqueCode = "JCJH-ENTRY-2025"; // Updated code
   
   useEffect(() => {
     // Initialize with current URL, but clean it up if needed
@@ -29,7 +29,7 @@ const AccessQRModal: React.FC<Props> = ({ onClose }) => {
         
         {/* Header - Styled for both screen and print */}
         <div className="bg-indigo-600 p-6 text-center print:bg-white print:text-black print:border-b-2 print:border-black relative shrink-0">
-           <h2 className="text-2xl font-bold text-white mb-1 print:text-black">Juneja Hospital</h2>
+           <h2 className="text-2xl font-bold text-white mb-1 print:text-black">J.C. Juneja Hospital</h2>
            <p className="text-indigo-100 text-sm print:text-slate-600">AI Clinical Triage Access</p>
            <button 
              onClick={onClose}
@@ -93,7 +93,7 @@ const AccessQRModal: React.FC<Props> = ({ onClose }) => {
         
         {/* Footer visible only when printing */}
         <div className="hidden print:block text-center mb-6 text-sm text-slate-500">
-           Powered by Juneja Hospital AI Care System • 24/7 Emergency Support
+           Powered by J.C. Juneja Hospital AI Care System • 24/7 Emergency Support
         </div>
 
       </div>
