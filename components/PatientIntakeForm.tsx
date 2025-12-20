@@ -8,9 +8,10 @@ interface Props {
   isLoading: boolean;
   initialEmail?: string;
   initialRelationship?: string;
+  initialData?: IntakeData | null;
 }
 
-const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail, initialRelationship }) => {
+const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail, initialRelationship, initialData }) => {
   const [formData, setFormData] = useState<IntakeData>({
     email: initialEmail || '',
     fullName: '',
@@ -32,17 +33,31 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
     vitals: ''
   });
 
+  // Handle specific initial props (New Profile flow)
   useEffect(() => {
-    if (initialEmail) {
+    if (initialEmail && !initialData) {
       setFormData(prev => ({ ...prev, email: initialEmail }));
     }
-  }, [initialEmail]);
+  }, [initialEmail, initialData]);
 
   useEffect(() => {
-      if (initialRelationship) {
+      if (initialRelationship && !initialData) {
           setFormData(prev => ({ ...prev, relationship: initialRelationship }));
       }
-  }, [initialRelationship]);
+  }, [initialRelationship, initialData]);
+
+  // Handle full initial data (Edit Profile flow)
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({
+        ...prev,
+        ...initialData,
+        // Always clear current symptoms for a new triage session, 
+        // even if the rest of the profile is pre-filled.
+        currentSymptoms: '' 
+      }));
+    }
+  }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -65,8 +80,9 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
           <div>
             <h2 className="text-lg font-bold text-slate-700 flex items-center gap-2">
               <User className="w-5 h-5 text-indigo-500" />
-              Patient Details
+              {initialData ? 'Verify & Update Details' : 'Patient Details'}
             </h2>
+            {initialData && <p className="text-xs text-slate-500 mt-1">Please review and update information if anything has changed.</p>}
           </div>
         </div>
         
@@ -88,8 +104,8 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
                    name="email" 
                    value={formData.email} 
                    onChange={handleChange} 
-                   readOnly={!!initialEmail}
-                   className={`${inputClasses} pl-10 ${initialEmail ? 'bg-slate-100 cursor-not-allowed' : ''}`} 
+                   readOnly={!!initialEmail || !!initialData}
+                   className={`${inputClasses} pl-10 ${initialEmail || initialData ? 'bg-slate-100 cursor-not-allowed' : ''}`} 
                    placeholder="email@example.com" 
                  />
                </div>
@@ -169,7 +185,7 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
                 value={formData.currentSymptoms} 
                 onChange={handleChange} 
                 className={`${textareaClasses} h-32 shadow-sm border-indigo-100 bg-indigo-50/30 focus:bg-white`}
-                placeholder="Describe what you are feeling... (e.g., 'Severe headache since morning, sensitivity to light.')" 
+                placeholder={initialData ? "Since this is a new visit, please describe your current symptoms..." : "Describe what you are feeling... (e.g., 'Severe headache since morning, sensitivity to light.')"}
               />
             </div>
           </div>
@@ -244,7 +260,7 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
               disabled={isLoading}
               className="bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 rounded-2xl font-semibold flex items-center gap-3 transition-all shadow-xl hover:shadow-slate-500/30 disabled:opacity-70 disabled:cursor-not-allowed text-lg"
             >
-              {isLoading ? 'Processing...' : 'Start Assessment'}
+              {isLoading ? 'Processing...' : (initialData ? 'Update & Start Assessment' : 'Start Assessment')}
               {!isLoading && <ChevronRight className="w-5 h-5" />}
             </button>
           </div>

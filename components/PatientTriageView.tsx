@@ -10,7 +10,7 @@ import SymptomInput from './SymptomInput';
 import DisclaimerModal from './DisclaimerModal';
 import { sendMessageToTriage, resetSession } from '../services/geminiService';
 import { TriageResponse, AppState, IntakeData, AIResponse, MCQStepResponse, PatientRecord } from '../types';
-import { RefreshCw, ClipboardCheck, UserCog, MessageSquare, Save } from 'lucide-react';
+import { RefreshCw, ClipboardCheck, UserCog, MessageSquare, Save, Edit } from 'lucide-react';
 
 interface Props {
   onSaveRecord: (intake: IntakeData, triage: TriageResponse) => void;
@@ -271,15 +271,24 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
         {appState === AppState.QUICK_INTAKE && intakeData && (
            <div className="max-w-3xl mx-auto animate-fade-in-up">
               <div className="bg-indigo-600 rounded-2xl p-8 text-white shadow-xl mb-8">
-                 <div className="flex items-center gap-4 mb-4">
-                    <div className="bg-white/20 p-3 rounded-full">
-                       <MessageSquare className="w-6 h-6 text-white" />
+                 <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-white/20 p-3 rounded-full">
+                        <MessageSquare className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                        <h2 className="text-2xl font-bold">Hi, {intakeData.fullName.split(' ')[0]}</h2>
+                        <p className="text-indigo-100">Eli AI Assistant is ready to help.</p>
+                        <span className="text-xs bg-white/20 px-2 py-0.5 rounded text-white mt-1 inline-block">Language: {selectedLanguage}</span>
+                        </div>
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold">Hi, {intakeData.fullName.split(' ')[0]}</h2>
-                      <p className="text-indigo-100">Eli AI Assistant is ready to help.</p>
-                      <span className="text-xs bg-white/20 px-2 py-0.5 rounded text-white mt-1 inline-block">Language: {selectedLanguage}</span>
-                    </div>
+                    <button 
+                        onClick={() => setAppState(AppState.INTAKE)}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/50 hover:bg-indigo-500 rounded-lg text-xs font-medium border border-indigo-400 transition-colors"
+                    >
+                        <Edit className="w-3 h-3" />
+                        Edit Profile
+                    </button>
                  </div>
                  <div className="bg-white/10 rounded-xl p-4 text-sm text-indigo-50 border border-white/10">
                     <p>I have the medical history for this profile (Age: {intakeData.age}, Weight: {intakeData.weight}kg). You don't need to enter it again.</p>
@@ -303,6 +312,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
             isLoading={false} 
             initialEmail={currentEmail}
             initialRelationship={formInitialRelationship}
+            initialData={intakeData} // Pass existing data if available
           />
         )}
         
