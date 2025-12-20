@@ -34,6 +34,7 @@ export interface TriageResponse {
 export interface IntakeData {
   email: string;
   fullName: string;
+  relationship: string;
   age: string;
   sex: string;
   bloodGroup: string;

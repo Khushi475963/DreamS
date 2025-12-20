@@ -241,6 +241,10 @@ const DoctorPortal: React.FC<Props> = ({ records }) => {
                              <span className="font-medium text-slate-800">{selectedRecord.intake.email || 'N/A'}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-2">
+                             <span className="text-slate-500">Relationship</span>
+                             <span className="font-medium text-slate-800">{selectedRecord.intake.relationship || 'Self'}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-2">
                              <span className="text-slate-500">History</span>
                              <span className="font-medium text-slate-800">{selectedRecord.intake.conditions || 'None'}</span>
                           </div>

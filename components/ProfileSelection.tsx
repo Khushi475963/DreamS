@@ -6,7 +6,7 @@ import { IntakeData } from '../types';
 interface Props {
   email: string;
   existingProfiles: IntakeData[]; // List of unique profiles found for this email
-  onSelectProfile: (profile: IntakeData | null) => void; // null means "New Profile"
+  onSelectProfile: (profile: IntakeData | null, relationship?: string) => void; // null means "New Profile"
 }
 
 const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectProfile }) => {
@@ -50,7 +50,7 @@ const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectPr
                     </div>
                     <div>
                       <h4 className="font-bold text-slate-800">{profile.fullName}</h4>
-                      <p className="text-xs text-slate-500">{profile.age} Y • {profile.sex}</p>
+                      <p className="text-xs text-slate-500">{profile.relationship ? `${profile.relationship} • ` : ''}{profile.age} Y • {profile.sex}</p>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-indigo-500" />
@@ -73,7 +73,7 @@ const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectPr
              {uniqueProfiles.length === 0 ? (
                 <>
                     <button
-                        onClick={() => onSelectProfile(null)}
+                        onClick={() => onSelectProfile(null, 'Self')}
                         className="w-full flex items-center gap-4 p-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-md"
                     >
                         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -86,7 +86,7 @@ const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectPr
                     </button>
 
                     <button
-                        onClick={() => onSelectProfile(null)}
+                        onClick={() => onSelectProfile(null, '')}
                         className="w-full flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 hover:bg-slate-50 transition-all text-slate-700"
                     >
                         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
@@ -100,7 +100,7 @@ const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectPr
                 </>
              ) : (
                 <button
-                    onClick={() => onSelectProfile(null)}
+                    onClick={() => onSelectProfile(null, '')}
                     className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50/10 transition-all font-semibold"
                 >
                     <Plus className="w-5 h-5" />

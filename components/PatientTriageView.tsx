@@ -25,6 +25,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [currentEmail, setCurrentEmail] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [formInitialRelationship, setFormInitialRelationship] = useState('');
   
   const [intakeData, setIntakeData] = useState<IntakeData | null>(null);
   const [mcqData, setMcqData] = useState<MCQStepResponse | null>(null);
@@ -84,6 +85,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     const prompt = `
       PATIENT INTAKE DATA:
       Name: ${data.fullName}
+      Relationship: ${data.relationship}
       Age: ${data.age}
       Sex: ${data.sex}
       Blood Group: ${data.bloodGroup}
@@ -133,7 +135,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     setAppState(AppState.SELECT_PROFILE);
   };
 
-  const handleProfileSelect = (profile: IntakeData | null) => {
+  const handleProfileSelect = (profile: IntakeData | null, relationship?: string) => {
       if (profile) {
           // User selected an existing profile
           // Pre-load data but clear current symptoms
@@ -145,6 +147,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
           setAppState(AppState.QUICK_INTAKE);
       } else {
           // User selected "New Profile" (Self or Family)
+          setFormInitialRelationship(relationship || '');
           setIntakeData(null); // Clear any previous intake data
           setAppState(AppState.INTAKE);
       }
@@ -216,6 +219,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     setSelectedLanguage('English');
     setIsSaved(false);
     setAppState(AppState.IDLE);
+    setFormInitialRelationship('');
     onLogin(''); // Clear login in parent
   };
 
@@ -298,6 +302,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
             onSubmit={handleIntakeSubmit} 
             isLoading={false} 
             initialEmail={currentEmail}
+            initialRelationship={formInitialRelationship}
           />
         )}
         

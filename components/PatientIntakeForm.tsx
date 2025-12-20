@@ -7,12 +7,14 @@ interface Props {
   onSubmit: (data: IntakeData) => void;
   isLoading: boolean;
   initialEmail?: string;
+  initialRelationship?: string;
 }
 
-const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail }) => {
+const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail, initialRelationship }) => {
   const [formData, setFormData] = useState<IntakeData>({
     email: initialEmail || '',
     fullName: '',
+    relationship: initialRelationship || '',
     age: '',
     sex: '',
     bloodGroup: '',
@@ -35,6 +37,12 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail 
       setFormData(prev => ({ ...prev, email: initialEmail }));
     }
   }, [initialEmail]);
+
+  useEffect(() => {
+      if (initialRelationship) {
+          setFormData(prev => ({ ...prev, relationship: initialRelationship }));
+      }
+  }, [initialRelationship]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -72,7 +80,7 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail 
             </h3>
             
             <div className="pl-2 md:pl-11 mb-4">
-               <label className="block text-sm font-medium text-slate-600 mb-2">Email Address</label>
+               <label className="block text-sm font-medium text-slate-600 mb-2">Email Address (Account Holder)</label>
                <div className="relative">
                  <Mail className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                  <input 
@@ -89,7 +97,18 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-2 md:pl-11">
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-2">Full Name</label>
+                <label className="block text-sm font-medium text-slate-600 mb-2">Relationship to Account Holder</label>
+                <input 
+                   required 
+                   name="relationship" 
+                   value={formData.relationship} 
+                   onChange={handleChange} 
+                   className={inputClasses} 
+                   placeholder="e.g. Self, Spouse, Child, Father..." 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-2">Patient Full Name</label>
                 <input required name="fullName" value={formData.fullName} onChange={handleChange} className={inputClasses} placeholder="e.g. Aditi Sharma" />
               </div>
               <div className="grid grid-cols-2 gap-4">

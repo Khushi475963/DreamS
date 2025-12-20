@@ -98,7 +98,10 @@ const DigitalTwin: React.FC<Props> = ({ records, currentEmail }) => {
                 {latestRecord.intake.fullName.charAt(0)}
                 </div>
                 <h3 className="text-xl font-bold">{latestRecord.intake.fullName}</h3>
-                <p className="text-slate-400 text-sm">{latestRecord.intake.age} Y / {latestRecord.intake.sex}</p>
+                <p className="text-slate-400 text-sm">
+                  {latestRecord.intake.relationship && <span className="font-semibold text-indigo-300">({latestRecord.intake.relationship}) </span>}
+                  {latestRecord.intake.age} Y / {latestRecord.intake.sex}
+                </p>
                 <div className="flex items-center gap-2 mt-2">
                    <span className="text-xs bg-indigo-500/30 px-2 py-0.5 rounded text-indigo-200 border border-indigo-500/30">
                      {selectedFamilyMember === 'All' ? 'Latest Active Profile' : 'Selected Profile'}
