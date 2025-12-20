@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PatientIntakeForm from './PatientIntakeForm';
 import PatientIdentification from './PatientIdentification';
+import ProfileSelection from './ProfileSelection';
+import LanguageSelection from './LanguageSelection';
 import MCQQuestionnaire from './MCQQuestionnaire';
 import TriageReport from './TriageReport';
 import SymptomInput from './SymptomInput';
@@ -22,6 +24,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [currentEmail, setCurrentEmail] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
   
   const [intakeData, setIntakeData] = useState<IntakeData | null>(null);
   const [mcqData, setMcqData] = useState<MCQStepResponse | null>(null);
@@ -101,7 +104,8 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     `;
 
     try {
-      const response = await sendMessageToTriage(prompt);
+      // Pass the selected language here
+      const response = await sendMessageToTriage(prompt, selectedLanguage);
       processAIResponse(response);
     } catch (error) {
       console.error(error);
@@ -119,27 +123,31 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     const normalizedEmail = email.toLowerCase().trim();
     setCurrentEmail(normalizedEmail);
     onLogin(normalizedEmail);
+    // Proceed to Language Selection after email
+    setAppState(AppState.SELECT_LANGUAGE);
+  };
 
-    // Check if user exists in records
-    // IMPORTANT: Strict lower case matching to fix history retrieval issues
-    const existingUserRecords = records.filter(r => 
-      r.intake.email.toLowerCase().trim() === normalizedEmail
-    );
-    
-    if (existingUserRecords.length > 0) {
-      // Returning user - Sort by latest
-      const latestRecord = existingUserRecords.sort((a, b) => b.timestamp - a.timestamp)[0];
-      // Pre-load data but clear current symptoms
-      setIntakeData({
-        ...latestRecord.intake,
-        email: normalizedEmail, // Ensure email is current
-        currentSymptoms: '' // Reset symptoms for new triage
-      });
-      setAppState(AppState.QUICK_INTAKE);
-    } else {
-      // New user
-      setAppState(AppState.INTAKE);
-    }
+  const handleLanguageSelect = (language: string) => {
+    setSelectedLanguage(language);
+    // Proceed to Profile Selection after language
+    setAppState(AppState.SELECT_PROFILE);
+  };
+
+  const handleProfileSelect = (profile: IntakeData | null) => {
+      if (profile) {
+          // User selected an existing profile
+          // Pre-load data but clear current symptoms
+          setIntakeData({
+              ...profile,
+              email: currentEmail, // Ensure email matches current session
+              currentSymptoms: '' // Reset symptoms for new triage
+          });
+          setAppState(AppState.QUICK_INTAKE);
+      } else {
+          // User selected "New Profile" (Self or Family)
+          setIntakeData(null); // Clear any previous intake data
+          setAppState(AppState.INTAKE);
+      }
   };
 
   const handleIntakeSubmit = async (data: IntakeData) => {
@@ -179,7 +187,8 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     }
 
     try {
-      const response = await sendMessageToTriage(answerString);
+      // Pass language here as well to maintain context
+      const response = await sendMessageToTriage(answerString, selectedLanguage);
       processAIResponse(response);
     } catch (error) {
       console.error(error);
@@ -204,10 +213,26 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     setHasAcceptedDisclaimer(false);
     setShowDisclaimer(true);
     setCurrentEmail('');
+    setSelectedLanguage('English');
     setIsSaved(false);
     setAppState(AppState.IDLE);
     onLogin(''); // Clear login in parent
   };
+
+  // Extract unique profiles for the current email
+  const existingUserRecords = records.filter(r => 
+      r.intake.email.toLowerCase().trim() === currentEmail
+  );
+  // Get latest intake data for each unique name
+  const uniqueProfilesMap = new Map<string, IntakeData>();
+  existingUserRecords.forEach(r => {
+      // We use name as the key for 'Family Member' distinction under one email
+      if (!uniqueProfilesMap.has(r.intake.fullName.toLowerCase())) {
+          uniqueProfilesMap.set(r.intake.fullName.toLowerCase(), r.intake);
+      }
+  });
+  const uniqueProfiles = Array.from(uniqueProfilesMap.values());
+
 
   return (
     <div className="pb-32 relative">
@@ -217,7 +242,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
 
         <div className="flex justify-center mb-8">
            <div className="flex items-center gap-2">
-              <span className={`h-2 w-2 rounded-full ${[AppState.INTAKE, AppState.QUICK_INTAKE, AppState.PATIENT_ID].includes(appState) ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
+              <span className={`h-2 w-2 rounded-full ${[AppState.INTAKE, AppState.SELECT_PROFILE, AppState.SELECT_LANGUAGE, AppState.QUICK_INTAKE, AppState.PATIENT_ID].includes(appState) ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
               <span className={`h-2 w-2 rounded-full ${appState === AppState.MCQ_ENTRY ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
               <span className={`h-2 w-2 rounded-full ${appState === AppState.RESULTS ? 'bg-indigo-600 w-8' : 'bg-slate-300'} transition-all duration-300`}/>
            </div>
@@ -225,6 +250,18 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
 
         {appState === AppState.PATIENT_ID && (
           <PatientIdentification onSubmit={handleEmailSubmit} />
+        )}
+
+        {appState === AppState.SELECT_LANGUAGE && (
+          <LanguageSelection onSelect={handleLanguageSelect} />
+        )}
+
+        {appState === AppState.SELECT_PROFILE && (
+            <ProfileSelection 
+                email={currentEmail}
+                existingProfiles={uniqueProfiles}
+                onSelectProfile={handleProfileSelect}
+            />
         )}
 
         {appState === AppState.QUICK_INTAKE && intakeData && (
@@ -235,12 +272,13 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
                        <MessageSquare className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold">Welcome back, {intakeData.fullName.split(' ')[0]}</h2>
+                      <h2 className="text-2xl font-bold">Hi, {intakeData.fullName.split(' ')[0]}</h2>
                       <p className="text-indigo-100">Eli AI Assistant is ready to help.</p>
+                      <span className="text-xs bg-white/20 px-2 py-0.5 rounded text-white mt-1 inline-block">Language: {selectedLanguage}</span>
                     </div>
                  </div>
                  <div className="bg-white/10 rounded-xl p-4 text-sm text-indigo-50 border border-white/10">
-                    <p>I have your medical history on file (Age: {intakeData.age}, Weight: {intakeData.weight}kg, Conditions: {intakeData.conditions || 'None'}). You don't need to enter it again.</p>
+                    <p>I have the medical history for this profile (Age: {intakeData.age}, Weight: {intakeData.weight}kg). You don't need to enter it again.</p>
                  </div>
               </div>
 
@@ -267,7 +305,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
           <div className="text-center py-20 animate-pulse">
             <ClipboardCheck className="w-12 h-12 text-indigo-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-slate-700">Analyzing Patient Profile...</h3>
-            <p className="text-slate-500">Generating clinical assessment questions.</p>
+            <p className="text-slate-500">Generating clinical assessment questions ({selectedLanguage}).</p>
           </div>
         )}
 
@@ -331,7 +369,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
                  className="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 p-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
                >
                  <UserCog className="w-5 h-5" />
-                 View My Digital Twin
+                 View Family Digital Twin
                </button>
                <button 
                  onClick={handleReset}

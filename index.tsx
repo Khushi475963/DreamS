@@ -12,12 +12,15 @@ interface State {
   error: Error | null;
 }
 
-// Fixed ErrorBoundary to explicitly extend Component
+// Fixed ErrorBoundary to explicitly extend Component to resolve props type issue
 class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
@@ -55,6 +58,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
+    // Fixed: Ensure props are correctly typed and accessible
     return this.props.children;
   }
 }

@@ -25,7 +25,7 @@ const PatientIdentification: React.FC<Props> = ({ onSubmit }) => {
           </div>
           <h2 className="text-2xl font-bold text-slate-800">Patient Identification</h2>
           <p className="text-slate-500 text-sm mt-2">
-            Please enter your email to securely access your Digital Twin and start triage.
+            Please enter your email to securely access your Family Digital Twin and start triage.
           </p>
         </div>
 

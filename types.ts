@@ -76,8 +76,10 @@ export interface PatientRecord {
 export enum AppState {
   IDLE = 'IDLE',
   PATIENT_ID = 'PATIENT_ID',
+  SELECT_LANGUAGE = 'SELECT_LANGUAGE', // New state for Language selection
+  SELECT_PROFILE = 'SELECT_PROFILE', 
   INTAKE = 'INTAKE',
-  QUICK_INTAKE = 'QUICK_INTAKE', // Chatbot mode for returning users
+  QUICK_INTAKE = 'QUICK_INTAKE', 
   ANALYZING_INTAKE = 'ANALYZING_INTAKE',
   MCQ_ENTRY = 'MCQ_ENTRY',
   ANALYZING_MCQ = 'ANALYZING_MCQ',

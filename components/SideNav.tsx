@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ViewMode } from '../types';
-import { Stethoscope, UserCog, LayoutDashboard, Contact2 } from 'lucide-react';
+import { Stethoscope, UserCog, LayoutDashboard, Contact2, Phone } from 'lucide-react';
 
 interface Props {
   currentView: ViewMode;
@@ -11,13 +11,13 @@ interface Props {
 const SideNav: React.FC<Props> = ({ currentView, onNavigate }) => {
   const navItems = [
     { id: ViewMode.PATIENT_TRIAGE, label: 'Patient Triage', icon: Stethoscope },
-    { id: ViewMode.DIGITAL_TWIN, label: 'My Digital Twin', icon: UserCog },
+    { id: ViewMode.DIGITAL_TWIN, label: 'Family Digital Twin', icon: UserCog },
     { id: ViewMode.DOCTOR_PORTAL, label: 'Doctor Portal', icon: LayoutDashboard },
     { id: ViewMode.DOCTORS_DIRECTORY, label: 'Doctors Directory', icon: Contact2 },
   ];
 
   return (
-    <div className="w-full md:w-64 bg-white border-r border-slate-200 p-4 flex-shrink-0 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible justify-between">
+    <div className="w-full md:w-64 bg-white border-r border-slate-200 p-4 flex-shrink-0 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible justify-between h-auto md:h-full">
       <div className="flex flex-row md:flex-col gap-2 w-full">
         <div className="mb-6 px-2 hidden md:block">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Navigation</p>
@@ -42,6 +42,21 @@ const SideNav: React.FC<Props> = ({ currentView, onNavigate }) => {
             </button>
           );
         })}
+      </div>
+
+      {/* Reception Contact Footer (Desktop Only) */}
+      <div className="hidden md:block mt-auto pt-4 border-t border-slate-100">
+         <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Reception / Queries</p>
+            <div className="space-y-2">
+               <a href="tel:+919805687028" className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
+                  <Phone className="w-3.5 h-3.5 text-indigo-500" /> +91 9805687028
+               </a>
+               <a href="tel:+919805682028" className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
+                  <Phone className="w-3.5 h-3.5 text-indigo-500" /> +91 9805682028
+               </a>
+            </div>
+         </div>
       </div>
     </div>
   );
