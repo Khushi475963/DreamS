@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { PatientRecord } from '../types';
-import { Dna, Activity, CalendarClock, FileText, ArrowUpRight, User, RefreshCw, Users, Filter } from 'lucide-react';
+import { Dna, Activity, CalendarClock, FileText, ArrowUpRight, User, RefreshCw, Users, Filter, ChevronDown } from 'lucide-react';
 
 interface Props {
   records: PatientRecord[];
@@ -18,8 +18,19 @@ const DigitalTwin: React.FC<Props> = ({ records, currentEmail }) => {
     ? records.filter(r => normalize(r.intake.email) === normalize(currentEmail))
     : [];
   
-  // Extract unique family members from records
-  const familyMembers = Array.from(new Set(userRecords.map(r => r.intake.fullName)));
+  // Extract unique family members from records with their relationships
+  const uniqueMembersMap = new Map<string, string>();
+  userRecords.forEach(r => {
+      // Use the name as key. If multiple relationships exist for same name (unlikely), keep first found.
+      if (!uniqueMembersMap.has(r.intake.fullName)) {
+          uniqueMembersMap.set(r.intake.fullName, r.intake.relationship || '');
+      }
+  });
+
+  const memberOptions = Array.from(uniqueMembersMap.entries()).map(([name, relation]) => ({
+      name,
+      relation
+  }));
 
   // Filter based on selection
   const filteredRecords = selectedFamilyMember === 'All'
@@ -64,21 +75,29 @@ const DigitalTwin: React.FC<Props> = ({ records, currentEmail }) => {
         </div>
         
         {/* Family Member Filter */}
-        {familyMembers.length > 0 && (
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
-                <div className="px-2">
-                    <Filter className="w-4 h-4 text-slate-400" />
+        {memberOptions.length > 0 && (
+            <div className="flex items-center gap-3 bg-white p-2 pl-4 rounded-xl border border-slate-200 shadow-sm">
+                <span className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                    <Filter className="w-4 h-4" />
+                    Viewing Profile:
+                </span>
+                <div className="relative">
+                    <select 
+                        value={selectedFamilyMember}
+                        onChange={(e) => setSelectedFamilyMember(e.target.value)}
+                        className="appearance-none bg-indigo-50 border border-indigo-100 hover:border-indigo-300 text-indigo-700 text-sm font-bold py-2 pl-3 pr-10 rounded-lg cursor-pointer focus:outline-none transition-colors min-w-[200px]"
+                    >
+                        <option value="All">All Family Members</option>
+                        {memberOptions.map((member, idx) => (
+                            <option key={idx} value={member.name}>
+                                {member.name} {member.relation ? `• ${member.relation}` : ''}
+                            </option>
+                        ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-indigo-500">
+                        <ChevronDown className="w-4 h-4" />
+                    </div>
                 </div>
-                <select 
-                    value={selectedFamilyMember}
-                    onChange={(e) => setSelectedFamilyMember(e.target.value)}
-                    className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer pr-2"
-                >
-                    <option value="All">All Family Members</option>
-                    {familyMembers.map((member, idx) => (
-                        <option key={idx} value={member}>{member}</option>
-                    ))}
-                </select>
             </div>
         )}
       </div>
