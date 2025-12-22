@@ -313,6 +313,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
             initialEmail={currentEmail}
             initialRelationship={formInitialRelationship}
             initialData={intakeData} // Pass existing data if available
+            selectedLanguage={selectedLanguage}
           />
         )}
         
