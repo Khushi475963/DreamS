@@ -107,92 +107,96 @@ const DigitalTwin: React.FC<Props> = ({ records, currentPhone }) => {
          </div>
       ) : (
         <>
-        {/* Top Card: Profile Summary */}
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden transition-all duration-500">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <div className="relative z-10 grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="col-span-1 border-r border-white/10 pr-6">
-                <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center text-2xl font-bold mb-3 shadow-lg shadow-indigo-500/30">
-                {latestRecord.intake.fullName.charAt(0)}
-                </div>
-                <h3 className="text-xl font-bold">{latestRecord.intake.fullName}</h3>
-                <p className="text-slate-400 text-sm">
-                  {latestRecord.intake.relationship && <span className="font-semibold text-indigo-300">({latestRecord.intake.relationship}) </span>}
-                  {latestRecord.intake.age} Y / {latestRecord.intake.sex}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                   <span className="text-xs bg-indigo-500/30 px-2 py-0.5 rounded text-indigo-200 border border-indigo-500/30">
-                     {selectedFamilyMember === 'All' ? 'Latest Active Profile' : 'Selected Profile'}
-                   </span>
-                </div>
-            </div>
-            <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Blood Type</p>
-                    <p className="font-semibold text-lg">{latestRecord.intake.bloodGroup || "Unknown"}</p>
-                </div>
-                <div>
-                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Height</p>
-                    <p className="font-semibold text-lg">{latestRecord.intake.height ? `${latestRecord.intake.height} cm` : 'N/A'}</p>
-                </div>
-                <div>
-                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Weight</p>
-                    <p className="font-semibold text-lg">{latestRecord.intake.weight ? `${latestRecord.intake.weight} kg` : 'N/A'}</p>
-                </div>
-                <div>
-                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">BMI</p>
-                    <p className="font-semibold text-lg">
-                    {latestRecord.intake.weight && latestRecord.intake.height ? 
-                        ((parseFloat(latestRecord.intake.weight) / ((parseFloat(latestRecord.intake.height)/100) ** 2))).toFixed(1)
-                        : 'N/A'}
+        {/* Top Card: Profile Summary - ONLY SHOW IF SPECIFIC MEMBER SELECTED */}
+        {selectedFamilyMember !== 'All' && (
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden transition-all duration-500">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="col-span-1 border-r border-white/10 pr-6">
+                    <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center text-2xl font-bold mb-3 shadow-lg shadow-indigo-500/30">
+                    {latestRecord.intake.fullName.charAt(0)}
+                    </div>
+                    <h3 className="text-xl font-bold">{latestRecord.intake.fullName}</h3>
+                    <p className="text-slate-400 text-sm">
+                    {latestRecord.intake.relationship && <span className="font-semibold text-indigo-300">({latestRecord.intake.relationship}) </span>}
+                    {latestRecord.intake.age} Y / {latestRecord.intake.sex}
                     </p>
+                    <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs bg-indigo-500/30 px-2 py-0.5 rounded text-indigo-200 border border-indigo-500/30">
+                        Selected Profile
+                    </span>
+                    </div>
                 </div>
-                <div className="col-span-2">
-                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Chronic Conditions</p>
-                    <p className="font-medium">{latestRecord.intake.conditions || "None reported"}</p>
+                <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div>
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Blood Type</p>
+                        <p className="font-semibold text-lg">{latestRecord.intake.bloodGroup || "Unknown"}</p>
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Height</p>
+                        <p className="font-semibold text-lg">{latestRecord.intake.height ? `${latestRecord.intake.height} cm` : 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Weight</p>
+                        <p className="font-semibold text-lg">{latestRecord.intake.weight ? `${latestRecord.intake.weight} kg` : 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">BMI</p>
+                        <p className="font-semibold text-lg">
+                        {latestRecord.intake.weight && latestRecord.intake.height ? 
+                            ((parseFloat(latestRecord.intake.weight) / ((parseFloat(latestRecord.intake.height)/100) ** 2))).toFixed(1)
+                            : 'N/A'}
+                        </p>
+                    </div>
+                    <div className="col-span-2">
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Chronic Conditions</p>
+                        <p className="font-medium">{latestRecord.intake.conditions || "None reported"}</p>
+                    </div>
+                    <div className="col-span-2">
+                        <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Allergies</p>
+                        <p className="font-medium text-rose-300">{latestRecord.intake.allergies || "None reported"}</p>
+                    </div>
                 </div>
-                <div className="col-span-2">
-                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Allergies</p>
-                    <p className="font-medium text-rose-300">{latestRecord.intake.allergies || "None reported"}</p>
                 </div>
             </div>
-            </div>
-        </div>
+        )}
 
         {/* Vitals & Recent History */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {/* Latest Vitals Snapshot */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
-                <Activity className="w-5 h-5 text-teal-600" />
-                Latest Vitals Snapshot
-            </h3>
-            <div className="space-y-4">
-                <div className="p-3 bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-500 mb-1">Reported Vitals</p>
-                <p className="font-mono text-slate-800 font-medium">{latestRecord.intake.vitals || "Not recorded"}</p>
+            {/* Latest Vitals Snapshot - ONLY SHOW IF SPECIFIC MEMBER SELECTED */}
+            {selectedFamilyMember !== 'All' && (
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
+                    <Activity className="w-5 h-5 text-teal-600" />
+                    Latest Vitals Snapshot
+                </h3>
+                <div className="space-y-4">
+                    <div className="p-3 bg-slate-50 rounded-lg">
+                    <p className="text-xs text-slate-500 mb-1">Reported Vitals</p>
+                    <p className="font-mono text-slate-800 font-medium">{latestRecord.intake.vitals || "Not recorded"}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-slate-50 rounded-lg">
+                        <p className="text-xs text-slate-500 mb-1">Smoking</p>
+                        <p className="font-medium text-slate-800">{latestRecord.intake.smoking}</p>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-lg">
+                        <p className="text-xs text-slate-500 mb-1">Alcohol</p>
+                        <p className="font-medium text-slate-800">{latestRecord.intake.alcohol}</p>
+                    </div>
+                    </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-slate-50 rounded-lg">
-                    <p className="text-xs text-slate-500 mb-1">Smoking</p>
-                    <p className="font-medium text-slate-800">{latestRecord.intake.smoking}</p>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-lg">
-                    <p className="text-xs text-slate-500 mb-1">Alcohol</p>
-                    <p className="font-medium text-slate-800">{latestRecord.intake.alcohol}</p>
-                </div>
-                </div>
-            </div>
-            </div>
+            )}
 
-            {/* Timeline of Visits */}
-            <div className="md:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            {/* Timeline of Visits - Full width if All, 2/3 width if specific */}
+            <div className={`${selectedFamilyMember === 'All' ? 'md:col-span-3' : 'md:col-span-2'} bg-white p-6 rounded-2xl border border-slate-200 shadow-sm`}>
             <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
                 <CalendarClock className="w-5 h-5 text-indigo-600" />
                 Assessment History
             </h3>
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+            <div className={`space-y-4 overflow-y-auto pr-2 ${selectedFamilyMember === 'All' ? '' : 'max-h-[300px]'}`}>
                 {sortedRecords.map((rec) => (
                 <div key={rec.id} className="flex gap-4 p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
                     <div className="flex flex-col items-center justify-center w-14 h-14 bg-indigo-50 text-indigo-700 rounded-lg shrink-0">
