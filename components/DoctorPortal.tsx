@@ -24,7 +24,7 @@ const DoctorPortal: React.FC<Props> = ({ records }) => {
   const filteredRecords = records.filter(r => 
     r.intake.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
     r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.intake.email.toLowerCase().includes(searchTerm.toLowerCase())
+    r.intake.phoneNumber.includes(searchTerm)
   );
 
   const getStatusColor = (status: string) => {
@@ -111,7 +111,7 @@ const DoctorPortal: React.FC<Props> = ({ records }) => {
              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
              <input 
                type="text" 
-               placeholder="Search by Name, ID, or Email..." 
+               placeholder="Search by Name, ID, or Phone..." 
                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
@@ -163,7 +163,7 @@ const DoctorPortal: React.FC<Props> = ({ records }) => {
                         <td className="p-4 font-mono text-xs text-slate-500">{record.id}</td>
                         <td className="p-4">
                            <div className="font-bold text-slate-800">{record.intake.fullName}</div>
-                           <div className="text-[10px] text-slate-400">{record.intake.email}</div>
+                           <div className="text-[10px] text-slate-400">{record.intake.phoneNumber}</div>
                         </td>
                         <td className="p-4 text-slate-600">{record.intake.age} / {record.intake.sex}</td>
                         <td className="p-4">
@@ -238,7 +238,7 @@ const DoctorPortal: React.FC<Props> = ({ records }) => {
                        <div className="space-y-3 text-sm">
                           <div className="flex justify-between border-b border-slate-50 pb-2">
                              <span className="text-slate-500">Contact</span>
-                             <span className="font-medium text-slate-800">{selectedRecord.intake.email || 'N/A'}</span>
+                             <span className="font-medium text-slate-800">{selectedRecord.intake.phoneNumber || 'N/A'}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-2">
                              <span className="text-slate-500">Relationship</span>

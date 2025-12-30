@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ViewMode } from '../types';
-import { Stethoscope, UserCog, LayoutDashboard, Contact2, Phone } from 'lucide-react';
+import { Stethoscope, UserCog, LayoutDashboard, Contact2, Phone, Building2 } from 'lucide-react';
 
 interface Props {
   currentView: ViewMode;
@@ -12,6 +12,7 @@ const SideNav: React.FC<Props> = ({ currentView, onNavigate }) => {
   const navItems = [
     { id: ViewMode.PATIENT_TRIAGE, label: 'Patient Triage', icon: Stethoscope },
     { id: ViewMode.DIGITAL_TWIN, label: 'Family Digital Twin', icon: UserCog },
+    { id: ViewMode.OUR_FACILITY, label: 'Our Facility', icon: Building2 },
     { id: ViewMode.DOCTOR_PORTAL, label: 'Doctor Portal', icon: LayoutDashboard },
     { id: ViewMode.DOCTORS_DIRECTORY, label: 'Doctors Directory', icon: Contact2 },
   ];

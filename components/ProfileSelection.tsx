@@ -1,15 +1,15 @@
 
 import React from 'react';
-import { User, Users, Plus, ChevronRight } from 'lucide-react';
+import { User, Users, Plus, ChevronRight, Phone } from 'lucide-react';
 import { IntakeData } from '../types';
 
 interface Props {
-  email: string;
-  existingProfiles: IntakeData[]; // List of unique profiles found for this email
+  phoneNumber: string;
+  existingProfiles: IntakeData[]; // List of unique profiles found for this phone
   onSelectProfile: (profile: IntakeData | null, relationship?: string) => void; // null means "New Profile"
 }
 
-const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectProfile }) => {
+const ProfileSelection: React.FC<Props> = ({ phoneNumber, existingProfiles, onSelectProfile }) => {
   
   // Remove duplicates based on fullName just in case
   const uniqueProfiles = existingProfiles.filter((profile, index, self) =>
@@ -27,8 +27,8 @@ const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectPr
             <Users className="w-8 h-8 text-indigo-600" />
           </div>
           <h2 className="text-2xl font-bold text-slate-800">Who is this visit for?</h2>
-          <p className="text-slate-500 text-sm mt-2">
-            Managing health records for <span className="font-semibold text-indigo-600">{email}</span>
+          <p className="text-slate-500 text-sm mt-2 flex items-center justify-center gap-1">
+            Managing health records for <span className="font-semibold text-indigo-600 flex items-center gap-1"><Phone className="w-3 h-3" /> {phoneNumber}</span>
           </p>
         </div>
 
@@ -64,11 +64,6 @@ const ProfileSelection: React.FC<Props> = ({ email, existingProfiles, onSelectPr
              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                 {uniqueProfiles.length > 0 ? "Add New Member" : "Select Identity"}
              </p>
-             
-             {/* If no profiles exist, explicitly ask "Myself" vs "Family" conceptually, 
-                 though both lead to a blank form, it sets the mental model. 
-                 If profiles exist, we just show "Create New Profile".
-             */}
 
              {uniqueProfiles.length === 0 ? (
                 <>

@@ -16,14 +16,14 @@ interface Props {
   onSaveRecord: (intake: IntakeData, triage: TriageResponse) => void;
   onNavigateToDigitalTwin: () => void;
   records: PatientRecord[];
-  onLogin: (email: string) => void;
+  onLogin: (phone: string) => void;
 }
 
 const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalTwin, records, onLogin }) => {
   const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
-  const [currentEmail, setCurrentEmail] = useState('');
+  const [currentPhone, setCurrentPhone] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [formInitialRelationship, setFormInitialRelationship] = useState('');
   
@@ -65,8 +65,8 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
       
       // Auto-save record when final report is generated and no clarification needed
       if (report.clarifying_questions_needed === 'NO' && intakeData) {
-        // Ensure email is consistent from currentEmail state
-        const finalIntake = { ...intakeData, email: currentEmail.toLowerCase() };
+        // Ensure phone is consistent from currentPhone state
+        const finalIntake = { ...intakeData, phoneNumber: currentPhone };
         triggerSave(finalIntake, report);
       }
       return;
@@ -121,11 +121,11 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     setAppState(AppState.PATIENT_ID);
   };
 
-  const handleEmailSubmit = (email: string) => {
-    const normalizedEmail = email.toLowerCase().trim();
-    setCurrentEmail(normalizedEmail);
-    onLogin(normalizedEmail);
-    // Proceed to Language Selection after email
+  const handlePhoneSubmit = (phone: string) => {
+    const cleanPhone = phone.trim();
+    setCurrentPhone(cleanPhone);
+    onLogin(cleanPhone);
+    // Proceed to Language Selection after phone
     setAppState(AppState.SELECT_LANGUAGE);
   };
 
@@ -141,7 +141,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
           // Pre-load data but clear current symptoms
           setIntakeData({
               ...profile,
-              email: currentEmail, // Ensure email matches current session
+              phoneNumber: currentPhone, // Ensure phone matches current session
               currentSymptoms: '' // Reset symptoms for new triage
           });
           setAppState(AppState.QUICK_INTAKE);
@@ -154,18 +154,18 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
   };
 
   const handleIntakeSubmit = async (data: IntakeData) => {
-    // Force email consistency
-    const consistentData = { ...data, email: currentEmail };
+    // Force phone consistency
+    const consistentData = { ...data, phoneNumber: currentPhone };
     processIntake(consistentData);
   };
 
   const handleQuickIntakeSubmit = async (symptoms: string) => {
     if (!intakeData) return;
     
-    // Merge new symptoms with existing profile and ensure email
+    // Merge new symptoms with existing profile and ensure phone
     const updatedIntake = {
       ...intakeData,
-      email: currentEmail,
+      phoneNumber: currentPhone,
       currentSymptoms: symptoms
     };
     
@@ -201,7 +201,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
 
   const handleManualSave = () => {
     if (finalReport && intakeData) {
-        const finalIntake = { ...intakeData, email: currentEmail.toLowerCase() };
+        const finalIntake = { ...intakeData, phoneNumber: currentPhone };
         onSaveRecord(finalIntake, finalReport);
         setIsSaved(true);
         alert("Record saved to Doctor Portal successfully.");
@@ -215,7 +215,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     setFinalReport(null);
     setHasAcceptedDisclaimer(false);
     setShowDisclaimer(true);
-    setCurrentEmail('');
+    setCurrentPhone('');
     setSelectedLanguage('English');
     setIsSaved(false);
     setAppState(AppState.IDLE);
@@ -223,14 +223,14 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
     onLogin(''); // Clear login in parent
   };
 
-  // Extract unique profiles for the current email
+  // Extract unique profiles for the current phone
   const existingUserRecords = records.filter(r => 
-      r.intake.email.toLowerCase().trim() === currentEmail
+      r.intake.phoneNumber === currentPhone
   );
   // Get latest intake data for each unique name
   const uniqueProfilesMap = new Map<string, IntakeData>();
   existingUserRecords.forEach(r => {
-      // We use name as the key for 'Family Member' distinction under one email
+      // We use name as the key for 'Family Member' distinction under one phone
       if (!uniqueProfilesMap.has(r.intake.fullName.toLowerCase())) {
           uniqueProfilesMap.set(r.intake.fullName.toLowerCase(), r.intake);
       }
@@ -253,7 +253,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
         </div>
 
         {appState === AppState.PATIENT_ID && (
-          <PatientIdentification onSubmit={handleEmailSubmit} />
+          <PatientIdentification onSubmit={handlePhoneSubmit} />
         )}
 
         {appState === AppState.SELECT_LANGUAGE && (
@@ -262,7 +262,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
 
         {appState === AppState.SELECT_PROFILE && (
             <ProfileSelection 
-                email={currentEmail}
+                phoneNumber={currentPhone}
                 existingProfiles={uniqueProfiles}
                 onSelectProfile={handleProfileSelect}
             />
@@ -291,7 +291,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
                     </button>
                  </div>
                  <div className="bg-white/10 rounded-xl p-4 text-sm text-indigo-50 border border-white/10">
-                    <p>I have the medical history for this profile (Age: {intakeData.age}, Weight: {intakeData.weight}kg). You don't need to enter it again.</p>
+                    <p>I have the medical history for this profile (Age: {intakeData.age}{intakeData.weight ? `, Weight: ${intakeData.weight}kg` : ''}). You don't need to enter it again.</p>
                  </div>
               </div>
 
@@ -310,7 +310,7 @@ const PatientTriageView: React.FC<Props> = ({ onSaveRecord, onNavigateToDigitalT
           <PatientIntakeForm 
             onSubmit={handleIntakeSubmit} 
             isLoading={false} 
-            initialEmail={currentEmail}
+            initialPhone={currentPhone}
             initialRelationship={formInitialRelationship}
             initialData={intakeData} // Pass existing data if available
             selectedLanguage={selectedLanguage}

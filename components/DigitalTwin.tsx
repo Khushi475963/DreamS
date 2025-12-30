@@ -5,17 +5,16 @@ import { Dna, Activity, CalendarClock, FileText, ArrowUpRight, User, RefreshCw, 
 
 interface Props {
   records: PatientRecord[];
-  currentEmail?: string;
+  currentPhone?: string;
 }
 
-const DigitalTwin: React.FC<Props> = ({ records, currentEmail }) => {
+const DigitalTwin: React.FC<Props> = ({ records, currentPhone }) => {
   const [selectedFamilyMember, setSelectedFamilyMember] = useState<string>('All');
 
-  // Robust case-insensitive email matching
-  const normalize = (str?: string) => str?.trim().toLowerCase() || '';
+  const normalize = (str?: string) => str?.trim() || '';
   
-  const userRecords = currentEmail 
-    ? records.filter(r => normalize(r.intake.email) === normalize(currentEmail))
+  const userRecords = currentPhone 
+    ? records.filter(r => normalize(r.intake.phoneNumber) === normalize(currentPhone))
     : [];
   
   // Extract unique family members from records with their relationships
@@ -41,12 +40,12 @@ const DigitalTwin: React.FC<Props> = ({ records, currentEmail }) => {
   const sortedRecords = [...filteredRecords].sort((a, b) => b.timestamp - a.timestamp);
   const latestRecord = sortedRecords[0];
 
-  if (!currentEmail) {
+  if (!currentPhone) {
       return (
         <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200 animate-fade-in">
             <Users className="w-16 h-16 mb-4 opacity-20" />
             <p className="font-medium text-slate-600">Identification Required</p>
-            <p className="text-sm mt-1">Please enter your email in the Triage section to view your Family Digital Twin.</p>
+            <p className="text-sm mt-1">Please enter your phone number in the Triage section to view your Family Digital Twin.</p>
         </div>
       );
   }
@@ -57,7 +56,7 @@ const DigitalTwin: React.FC<Props> = ({ records, currentEmail }) => {
         <Dna className="w-16 h-16 mb-4 opacity-20" />
         <h3 className="text-lg font-bold text-slate-600">No Records Found</h3>
         <p className="text-sm mt-2 max-w-xs text-center">
-            We couldn't find any medical history for <span className="text-indigo-600 font-medium">{currentEmail}</span>.
+            We couldn't find any medical history for <span className="text-indigo-600 font-medium">{currentPhone}</span>.
         </p>
         <div className="mt-6 flex flex-col gap-2">
             <p className="text-xs text-slate-400">If you just completed a triage, ensure it was saved correctly.</p>
@@ -134,16 +133,18 @@ const DigitalTwin: React.FC<Props> = ({ records, currentEmail }) => {
                 </div>
                 <div>
                     <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Height</p>
-                    <p className="font-semibold text-lg">{latestRecord.intake.height} cm</p>
+                    <p className="font-semibold text-lg">{latestRecord.intake.height ? `${latestRecord.intake.height} cm` : 'N/A'}</p>
                 </div>
                 <div>
                     <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Weight</p>
-                    <p className="font-semibold text-lg">{latestRecord.intake.weight} kg</p>
+                    <p className="font-semibold text-lg">{latestRecord.intake.weight ? `${latestRecord.intake.weight} kg` : 'N/A'}</p>
                 </div>
                 <div>
                     <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">BMI</p>
                     <p className="font-semibold text-lg">
-                    {((parseFloat(latestRecord.intake.weight) / ((parseFloat(latestRecord.intake.height)/100) ** 2))).toFixed(1)}
+                    {latestRecord.intake.weight && latestRecord.intake.height ? 
+                        ((parseFloat(latestRecord.intake.weight) / ((parseFloat(latestRecord.intake.height)/100) ** 2))).toFixed(1)
+                        : 'N/A'}
                     </p>
                 </div>
                 <div className="col-span-2">

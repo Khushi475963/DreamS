@@ -6,6 +6,7 @@ import PatientTriageView from './components/PatientTriageView';
 import DigitalTwin from './components/DigitalTwin';
 import DoctorPortal from './components/DoctorPortal';
 import DoctorsDirectory from './components/DoctorsDirectory';
+import OurFacility from './components/OurFacility';
 import { ViewMode, PatientRecord, IntakeData, TriageResponse } from './types';
 
 // Initialize with empty array as requested
@@ -13,7 +14,7 @@ const MOCK_RECORDS: PatientRecord[] = [];
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.PATIENT_TRIAGE);
-  const [currentUserEmail, setCurrentUserEmail] = useState<string>('');
+  const [currentUserPhone, setCurrentUserPhone] = useState<string>('');
 
   // Initialize records from LocalStorage or fall back to empty array
   // Updated key to 'jc_juneja_hospital_records'
@@ -55,8 +56,8 @@ const App: React.FC = () => {
     setCurrentView(ViewMode.DIGITAL_TWIN);
   };
 
-  const handleLogin = (email: string) => {
-    setCurrentUserEmail(email);
+  const handleLogin = (phone: string) => {
+    setCurrentUserPhone(phone);
   };
 
   return (
@@ -84,7 +85,13 @@ const App: React.FC = () => {
 
           {currentView === ViewMode.DIGITAL_TWIN && (
             <div className="max-w-5xl mx-auto h-full">
-              <DigitalTwin records={records} currentEmail={currentUserEmail} />
+              <DigitalTwin records={records} currentPhone={currentUserPhone} />
+            </div>
+          )}
+
+          {currentView === ViewMode.OUR_FACILITY && (
+            <div className="max-w-6xl mx-auto h-full">
+              <OurFacility />
             </div>
           )}
 

@@ -1,20 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { IntakeData } from '../types';
-import { User, ChevronRight, Mail } from 'lucide-react';
+import { User, ChevronRight, Phone } from 'lucide-react';
 
 interface Props {
   onSubmit: (data: IntakeData) => void;
   isLoading: boolean;
-  initialEmail?: string;
+  initialPhone?: string;
   initialRelationship?: string;
   initialData?: IntakeData | null;
   selectedLanguage?: string;
 }
 
-const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail, initialRelationship, initialData, selectedLanguage = 'English' }) => {
+const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialPhone, initialRelationship, initialData, selectedLanguage = 'English' }) => {
   const [formData, setFormData] = useState<IntakeData>({
-    email: initialEmail || '',
+    phoneNumber: initialPhone || '',
     fullName: '',
     relationship: initialRelationship || '',
     age: '',
@@ -41,7 +41,7 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
       verifyHeader: "Verify & Update Details",
       subHeader: "Please review and update information if anything has changed.",
       section1: "Personal Information",
-      emailLabel: "Email Address (Account Holder)",
+      phoneLabel: "Phone Number",
       relationLabel: "Relationship to Account Holder",
       relationPlaceholder: "e.g. Self, Spouse, Child, Father...",
       nameLabel: "Patient Full Name",
@@ -81,7 +81,7 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
       verifyHeader: "विवरण सत्यापित और अपडेट करें",
       subHeader: "कृपया जानकारी की समीक्षा करें और यदि कुछ बदला है तो उसे अपडेट करें।",
       section1: "व्यक्तिगत जानकारी",
-      emailLabel: "ईमेल पता (खाता धारक)",
+      phoneLabel: "फ़ोन नंबर",
       relationLabel: "खाता धारक से संबंध",
       relationPlaceholder: "जैसे: स्वयं, पति/पत्नी, बच्चा, पिता...",
       nameLabel: "रोगी का पूरा नाम",
@@ -109,7 +109,7 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
       alcoholLabel: "शराब (Alcohol)",
       alcoholOptions: { none: "बिल्कुल नहीं", occasional: "कभी-कभी", regular: "नियमित", heavy: "अधिक मात्रा में" },
       pregnancyLabel: "गर्भावस्था (Pregnancy)",
-      pregnancyOptions: { na: "लागू नहीं", no: "नहीं", yes: "हाँ", possible: "संभव है" },
+      pregnancyOptions: { na: "लागू नहीं", no: "नहीं", yes: "हाँ", संभव: "संभव है" },
       vitalsLabel: "विटल्स (यदि ज्ञात हो)",
       vitalsPlaceholder: "BP: 120/80, Pulse: 72",
       submitBtn: "मूल्यांकन शुरू करें",
@@ -121,7 +121,7 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
       verifyHeader: "Details Check aur Update Karein",
       subHeader: "Agar kuch change hua hai to please update karein.",
       section1: "Personal Information",
-      emailLabel: "Email Address (Account Holder)",
+      phoneLabel: "Phone Number",
       relationLabel: "Relationship (Rishta)",
       relationPlaceholder: "e.g. Self (Khud), Spouse (Pati/Patni), Child (Bachha)...",
       nameLabel: "Patient Full Name",
@@ -162,10 +162,10 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
 
   // Handle specific initial props (New Profile flow)
   useEffect(() => {
-    if (initialEmail && !initialData) {
-      setFormData(prev => ({ ...prev, email: initialEmail }));
+    if (initialPhone && !initialData) {
+      setFormData(prev => ({ ...prev, phoneNumber: initialPhone }));
     }
-  }, [initialEmail, initialData]);
+  }, [initialPhone, initialData]);
 
   useEffect(() => {
       if (initialRelationship && !initialData) {
@@ -226,17 +226,17 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
             </h3>
             
             <div className="pl-2 md:pl-11 mb-4">
-               <label className="block text-sm font-medium text-slate-600 mb-2">{t.emailLabel}</label>
+               <label className="block text-sm font-medium text-slate-600 mb-2">{t.phoneLabel}</label>
                <div className="relative">
-                 <Mail className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
+                 <Phone className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                  <input 
                    required 
-                   name="email" 
-                   value={formData.email} 
+                   name="phoneNumber" 
+                   value={formData.phoneNumber} 
                    onChange={handleChange} 
-                   readOnly={!!initialEmail || !!initialData}
-                   className={`${inputClasses} pl-10 ${initialEmail || initialData ? 'bg-slate-100 cursor-not-allowed' : ''}`} 
-                   placeholder="email@example.com" 
+                   readOnly={!!initialPhone || !!initialData}
+                   className={`${inputClasses} pl-10 ${initialPhone || initialData ? 'bg-slate-100 cursor-not-allowed' : ''}`} 
+                   placeholder="9876543210" 
                  />
                </div>
             </div>
@@ -275,11 +275,11 @@ const PatientIntakeForm: React.FC<Props> = ({ onSubmit, isLoading, initialEmail,
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-600 mb-2">{t.weightLabel}</label>
-                  <input required type="number" name="weight" value={formData.weight} onChange={handleChange} className={inputClasses} placeholder="65" />
+                  <input type="number" name="weight" value={formData.weight} onChange={handleChange} className={inputClasses} placeholder="65" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-600 mb-2">{t.heightLabel}</label>
-                  <input required type="number" name="height" value={formData.height} onChange={handleChange} className={inputClasses} placeholder="165" />
+                  <input type="number" name="height" value={formData.height} onChange={handleChange} className={inputClasses} placeholder="165" />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4">

@@ -32,7 +32,7 @@ export interface TriageResponse {
 }
 
 export interface IntakeData {
-  email: string;
+  phoneNumber: string;
   fullName: string;
   relationship: string;
   age: string;
@@ -92,5 +92,6 @@ export enum ViewMode {
   PATIENT_TRIAGE = 'PATIENT_TRIAGE',
   DIGITAL_TWIN = 'DIGITAL_TWIN',
   DOCTOR_PORTAL = 'DOCTOR_PORTAL',
-  DOCTORS_DIRECTORY = 'DOCTORS_DIRECTORY'
+  DOCTORS_DIRECTORY = 'DOCTORS_DIRECTORY',
+  OUR_FACILITY = 'OUR_FACILITY'
 }
