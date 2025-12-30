@@ -8,12 +8,14 @@ import DoctorPortal from './components/DoctorPortal';
 import DoctorsDirectory from './components/DoctorsDirectory';
 import OurFacility from './components/OurFacility';
 import { ViewMode, PatientRecord, IntakeData, TriageResponse } from './types';
+import { ArrowLeft } from 'lucide-react';
 
 // Initialize with empty array as requested
 const MOCK_RECORDS: PatientRecord[] = [];
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.PATIENT_TRIAGE);
+  const [viewHistory, setViewHistory] = useState<ViewMode[]>([]);
   const [currentUserPhone, setCurrentUserPhone] = useState<string>('');
 
   // Initialize records from LocalStorage or fall back to empty array
@@ -52,8 +54,24 @@ const App: React.FC = () => {
     setRecords(prev => [newRecord, ...prev]);
   };
 
+  const handleNavigate = (view: ViewMode) => {
+    if (view === currentView) return;
+    setViewHistory(prev => [...prev, currentView]);
+    setCurrentView(view);
+  };
+
+  const handleBack = () => {
+    if (viewHistory.length === 0) return;
+    const newHistory = [...viewHistory];
+    const prevView = newHistory.pop();
+    setViewHistory(newHistory);
+    if (prevView) {
+      setCurrentView(prevView);
+    }
+  };
+
   const navigateToDigitalTwin = () => {
-    setCurrentView(ViewMode.DIGITAL_TWIN);
+    handleNavigate(ViewMode.DIGITAL_TWIN);
   };
 
   const handleLogin = (phone: string) => {
@@ -67,12 +85,28 @@ const App: React.FC = () => {
       <div className="flex flex-col md:flex-row flex-1 max-w-7xl w-full mx-auto">
         <SideNav 
           currentView={currentView} 
-          onNavigate={setCurrentView} 
+          onNavigate={handleNavigate} 
         />
 
         <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-80px)]">
           
-          {currentView === ViewMode.PATIENT_TRIAGE && (
+          {viewHistory.length > 0 && (
+            <button 
+              onClick={handleBack}
+              className="mb-6 flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-medium text-sm group"
+            >
+              <div className="bg-white p-1.5 rounded-lg border border-slate-200 group-hover:border-indigo-200 group-hover:bg-indigo-50 transition-all">
+                 <ArrowLeft className="w-4 h-4" />
+              </div>
+              Back to Previous
+            </button>
+          )}
+          
+          {/* 
+            PatientTriageView is hidden instead of unmounted to preserve state 
+            (chat session, form data, progress).
+          */}
+          <div style={{ display: currentView === ViewMode.PATIENT_TRIAGE ? 'block' : 'none' }}>
             <div className="max-w-4xl mx-auto">
                <PatientTriageView 
                  onSaveRecord={handleSaveRecord} 
@@ -81,28 +115,28 @@ const App: React.FC = () => {
                  onLogin={handleLogin}
                />
             </div>
-          )}
+          </div>
 
           {currentView === ViewMode.DIGITAL_TWIN && (
-            <div className="max-w-5xl mx-auto h-full">
+            <div className="max-w-5xl mx-auto h-full animate-fade-in">
               <DigitalTwin records={records} currentPhone={currentUserPhone} />
             </div>
           )}
 
           {currentView === ViewMode.OUR_FACILITY && (
-            <div className="max-w-6xl mx-auto h-full">
+            <div className="max-w-6xl mx-auto h-full animate-fade-in">
               <OurFacility />
             </div>
           )}
 
           {currentView === ViewMode.DOCTOR_PORTAL && (
-            <div className="max-w-6xl mx-auto h-full">
+            <div className="max-w-6xl mx-auto h-full animate-fade-in">
               <DoctorPortal records={records} />
             </div>
           )}
 
           {currentView === ViewMode.DOCTORS_DIRECTORY && (
-            <div className="max-w-6xl mx-auto h-full">
+            <div className="max-w-6xl mx-auto h-full animate-fade-in">
               <DoctorsDirectory />
             </div>
           )}
