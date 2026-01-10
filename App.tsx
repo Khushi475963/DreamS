@@ -10,7 +10,6 @@ import OurFacility from './components/OurFacility';
 import { ViewMode, PatientRecord, IntakeData, TriageResponse } from './types';
 import { ArrowLeft } from 'lucide-react';
 
-// Initialize with empty array as requested
 const MOCK_RECORDS: PatientRecord[] = [];
 
 const App: React.FC = () => {
@@ -18,8 +17,6 @@ const App: React.FC = () => {
   const [viewHistory, setViewHistory] = useState<ViewMode[]>([]);
   const [currentUserPhone, setCurrentUserPhone] = useState<string>('');
 
-  // Initialize records from LocalStorage or fall back to empty array
-  // Updated key to 'jc_juneja_hospital_records'
   const [records, setRecords] = useState<PatientRecord[]>(() => {
     try {
       const savedData = localStorage.getItem('jc_juneja_hospital_records');
@@ -30,7 +27,6 @@ const App: React.FC = () => {
     }
   });
 
-  // Save records to LocalStorage whenever they change
   useEffect(() => {
     try {
       localStorage.setItem('jc_juneja_hospital_records', JSON.stringify(records));
@@ -62,9 +58,9 @@ const App: React.FC = () => {
 
   const handleBack = () => {
     if (viewHistory.length === 0) return;
-    const newHistory = [...viewHistory];
-    const prevView = newHistory.pop();
-    setViewHistory(newHistory);
+    const historyCopy = [...viewHistory];
+    const prevView = historyCopy.pop();
+    setViewHistory(historyCopy);
     if (prevView) {
       setCurrentView(prevView);
     }
@@ -93,19 +89,16 @@ const App: React.FC = () => {
           {viewHistory.length > 0 && (
             <button 
               onClick={handleBack}
-              className="mb-6 flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-medium text-sm group"
+              className="mb-6 flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-all font-medium text-sm group"
             >
-              <div className="bg-white p-1.5 rounded-lg border border-slate-200 group-hover:border-indigo-200 group-hover:bg-indigo-50 transition-all">
+              <div className="bg-white p-1.5 rounded-lg border border-slate-200 group-hover:border-indigo-200 group-hover:bg-indigo-50 transition-all shadow-sm">
                  <ArrowLeft className="w-4 h-4" />
               </div>
               Back to Previous
             </button>
           )}
           
-          {/* 
-            PatientTriageView is hidden instead of unmounted to preserve state 
-            (chat session, form data, progress).
-          */}
+          {/* State preservation: hide triage view instead of unmounting */}
           <div style={{ display: currentView === ViewMode.PATIENT_TRIAGE ? 'block' : 'none' }}>
             <div className="max-w-4xl mx-auto">
                <PatientTriageView 

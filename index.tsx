@@ -1,4 +1,4 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AlertTriangle } from 'lucide-react';
@@ -12,11 +12,24 @@ interface State {
   error: Error | null;
 }
 
-class ErrorBoundary extends React.Component<Props, State> {
-  public state: State = {
+// ErrorBoundary component to catch and handle errors in the React component tree.
+// Using explicit inheritance from Component and class property for state to ensure TypeScript correctly recognizes inherited members.
+class ErrorBoundary extends Component<Props, State> {
+  // Explicitly initialize state as a class field to resolve errors where 'state' is not found on the type
+  state: State = {
     hasError: false,
     error: null
   };
+
+  // Explicitly declare props to satisfy the compiler in environments where inheritance is not correctly mapped
+  // This fix addresses the error: "Property 'props' does not exist on type 'ErrorBoundary'"
+  props: Props;
+
+  constructor(props: Props) {
+    super(props);
+    // Explicitly assigning props to resolve potential type resolution issues in the current environment
+    this.props = props;
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
@@ -27,6 +40,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public render() {
+    // Correctly accessing state which is now explicitly declared
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
@@ -54,20 +68,21 @@ class ErrorBoundary extends React.Component<Props, State> {
       );
     }
 
+    // Correctly accessing props inherited from Component
     return this.props.children;
   }
 }
 
 const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+} else {
+  console.error("Fatal Error: Could not find root element to mount the application.");
 }
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>
-);
