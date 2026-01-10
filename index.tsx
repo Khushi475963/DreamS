@@ -1,3 +1,4 @@
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -12,23 +13,19 @@ interface State {
   error: Error | null;
 }
 
-// ErrorBoundary component to catch and handle errors in the React component tree.
-// Using explicit inheritance from Component and class property for state to ensure TypeScript correctly recognizes inherited members.
-class ErrorBoundary extends Component<Props, State> {
-  // Explicitly initialize state as a class field to resolve errors where 'state' is not found on the type
-  state: State = {
-    hasError: false,
-    error: null
-  };
-
-  // Explicitly declare props to satisfy the compiler in environments where inheritance is not correctly mapped
-  // This fix addresses the error: "Property 'props' does not exist on type 'ErrorBoundary'"
-  props: Props;
-
+/**
+ * ErrorBoundary catches errors in the component tree to prevent the whole app from crashing.
+ * Using standard React class patterns to avoid syntax errors in various transpilation environments.
+ */
+// Fix: Use React.Component with explicit Props and State generics to ensure this.state and this.props are correctly typed.
+class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    // Explicitly assigning props to resolve potential type resolution issues in the current environment
-    this.props = props;
+    // Fix: Initializing state within the constructor.
+    this.state = {
+      hasError: false,
+      error: null
+    };
   }
 
   public static getDerivedStateFromError(error: Error): State {
@@ -40,7 +37,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public render() {
-    // Correctly accessing state which is now explicitly declared
+    // Fix: Accessing state via this.state which is now properly recognized by the compiler.
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
@@ -68,7 +65,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Correctly accessing props inherited from Component
+    // Fix: Accessing props via this.props which is now properly recognized by the compiler.
     return this.props.children;
   }
 }
